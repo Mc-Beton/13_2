@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for
 
 from forms import TodoForm
-from models import todos
+from todosSQL import todos
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
@@ -12,14 +12,16 @@ def todos_list():
     error = ""
     if request.method == "POST":
         if form.validate_on_submit():
-            todos.create(form.data)
-            todos.save_all()
+            values=[] 
+            for v in form.data.values():    
+                values.append(v)
+            todos.create(values)
         return redirect(url_for("todos_list"))
 
     return render_template("todos.html", form=form, todos=todos.all(), error=error)
 
 
-@app.route("/todos/<int:todo_id>/", methods=["GET", "POST"])
+@app.route("/todos/<int:todoid>/", methods=["GET", "POST"])
 def todo_details(todo_id):
     todo = todos.get(todo_id - 1)
     form = TodoForm(data=todo)
