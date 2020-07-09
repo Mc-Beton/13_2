@@ -21,14 +21,14 @@ def todos_list():
     return render_template("todos.html", form=form, todos=todos.all(), error=error)
 
 
-@app.route("/todos/<int:todoid>/", methods=["GET", "POST"])
+@app.route("/todos/<int:todo_id>/", methods=["GET", "POST"])
 def todo_details(todo_id):
-    todo = todos.get(todo_id - 1)
+    todo = todos.get(todo_id)
     form = TodoForm(data=todo)
-
+    print(form.data)
     if request.method == "POST":
         if form.validate_on_submit():
-            todos.update(todo_id - 1, form.data)
+            todos.update(todo_id, form.data)
         return redirect(url_for("todos_list"))
     return render_template("todo.html", form=form, todo_id=todo_id)
 

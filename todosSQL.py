@@ -18,10 +18,6 @@ def create_connection(db_file):
 
    return conn
 
-    
-    
-   
-
 # stworzenie nowej tabeli
 def execute_sql(conn, sql):
    """ Execute sql
@@ -36,51 +32,11 @@ def execute_sql(conn, sql):
        print(e)
 
 
-if __name__ == "__main__":
-    
-
-    create_todo_sql = """
-    -- todo table
-    CREATE TABLE IF NOT EXISTS todo (
-        id integer PRIMARY KEY,
-        title text NOT NULL,
-        description text,
-        done text,
-        csrf_token text
-    );
-    """
-
-    db_file = "todo.db"
-
-    conn = create_connection(db_file)
-    if conn is not None:
-        execute_sql(conn, create_todo_sql)
-        conn.close()
-
-
-
-
-
 class TodosSQL:
     def __init__(self):
-        """
-        Query all rows in the table
-        :param conn: the Connection object
-        :return:
-        """
         conn = create_connection("todo.db")
-        cur = conn.cursor()
-        cur.execute(f"SELECT * FROM todo")
-        rows = cur.fetchall()
-        #print(rows)
-        self.todos = rows
-
+        
     def all(self):
-        """
-        Query all rows in the table
-        :param conn: the Connection object
-        :return:
-        """
         conn = create_connection("todo.db")
         cur = conn.cursor()
         cur.execute(f"SELECT * FROM todo")
@@ -88,16 +44,22 @@ class TodosSQL:
         return rows
 
     def get(self, id):
-        return self.todos[id]
+        conn = create_connection("todo.db")
+        cur = conn.cursor()
+        qs = []
+        values = ()
+        query={'id': id}
+        for k, v in query.items():
+            qs.append(f"{k}=?")
+            values += (v,)
+        q = " AND ".join(qs)
+        cur.execute(f"SELECT * FROM todo WHERE {q}", values)
+        rows = cur.fetchall()
+        print(rows)
+        return rows
 
     def create(self, data):
-        #data.pop('csrf_token')
-        """
-        Create a new projekt into the projects table
-        :param conn:
-        :param data:
-        :return: data id
-        """
+         
         conn = create_connection("todo.db")
         sql = '''INSERT INTO todo(title, description, done, csrf_token)
                 VALUES(?,?,?,?)'''
@@ -107,11 +69,22 @@ class TodosSQL:
         return cur.lastrowid
 
     def update(self, id, data):
-        data.pop('csrf_token')
-        self.todos[id] = data
+        conn = create_connection("todo.db")
+        
+        values = tuple(v for v in data.values())
+        values += (id, )
+        print(values)
+        sql = f''' UPDATE todo
+                SET title = ?, description = ?, done = ?, csrf_token = ?
+                WHERE id = ?'''
+        try:
+            cur = conn.cursor()
+            cur.execute(sql, values)
+            conn.commit()
+            print("OK")
+        except sqlite3.OperationalError as e:
+            print(e)
+        
         
 
 todos = TodosSQL()
-
-
-
