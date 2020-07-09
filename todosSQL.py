@@ -4,11 +4,6 @@ from sqlite3 import Error
 
 # polączenie z bazą danych
 def create_connection(db_file):
-   """ create a database connection to the SQLite database
-       specified by db_file
-   :param db_file: database file
-   :return: Connection object or None
-   """
    conn = None
    try:
        conn = sqlite3.connect(db_file)
@@ -20,11 +15,6 @@ def create_connection(db_file):
 
 # stworzenie nowej tabeli
 def execute_sql(conn, sql):
-   """ Execute sql
-   :param conn: Connection object
-   :param sql: a SQL script
-   :return:
-   """
    try:
        c = conn.cursor()
        c.execute(sql)
@@ -46,17 +36,12 @@ class TodosSQL:
     def get(self, id):
         conn = create_connection("todo.db")
         cur = conn.cursor()
-        qs = []
-        values = ()
-        query={'id': id}
-        for k, v in query.items():
-            qs.append(f"{k}=?")
-            values += (v,)
-        q = " AND ".join(qs)
-        cur.execute(f"SELECT * FROM todo WHERE {q}", values)
+        cur.execute(f"SELECT * FROM todo WHERE id={id}")
         rows = cur.fetchall()
         print(rows)
-        return rows
+        print(rows)
+        id, title, description, done, token = rows[0]
+        return {'title': title, 'description': description, 'done': done}
 
     def create(self, data):
          
@@ -85,6 +70,4 @@ class TodosSQL:
         except sqlite3.OperationalError as e:
             print(e)
         
-        
-
 todos = TodosSQL()
