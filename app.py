@@ -25,7 +25,6 @@ def todos_list():
 def todo_details(todo_id):
     todo = todos.get(todo_id)
     form = TodoForm(data=todo)
-    print(form.data)
     if request.method == "POST":
         if form.validate_on_submit():
             todos.update(todo_id, form.data)

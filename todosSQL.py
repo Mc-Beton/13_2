@@ -38,10 +38,8 @@ class TodosSQL:
         cur = conn.cursor()
         cur.execute(f"SELECT * FROM todo WHERE id={id}")
         rows = cur.fetchall()
-        print(rows)
-        print(rows)
-        id, title, description, done, token = rows[0]
-        return {'title': title, 'description': description, 'done': done}
+        id, title, description, done, token_crsf = rows[0]
+        return {'title': title, 'description': description, 'done': int(done)}
 
     def create(self, data):
          
@@ -58,7 +56,6 @@ class TodosSQL:
         
         values = tuple(v for v in data.values())
         values += (id, )
-        print(values)
         sql = f''' UPDATE todo
                 SET title = ?, description = ?, done = ?, csrf_token = ?
                 WHERE id = ?'''
